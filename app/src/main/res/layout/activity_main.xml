@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/activity_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
@@ -44,10 +42,10 @@
         android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginStart="15dp"
-        android:layout_marginTop="115dp"
-        android:layout_marginEnd="313dp"
-        android:layout_marginBottom="597dp"
+        android:layout_marginStart="13dp"
+        android:layout_marginTop="126dp"
+        android:layout_marginEnd="315dp"
+        android:layout_marginBottom="586dp"
         android:text="Atomic Time:" />
 
     <TextView
@@ -56,10 +54,31 @@
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginEnd="70dp"
-        android:layout_marginBottom="514dp"
+        android:layout_marginEnd="75dp"
+        android:layout_marginBottom="526dp"
         android:text="Atomic Time"
         android:textSize="50dp" />
+
+    <TextView
+        android:id="@+id/textview3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginEnd="326dp"
+        android:layout_marginBottom="180dp"
+        android:text="Offset:" />
+
+    <TextView
+        android:id="@+id/offsetId"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginEnd="188dp"
+        android:layout_marginBottom="173dp"
+        android:text="Offset"
+        android:textSize="30dp" />
 
 
 </RelativeLayout>
