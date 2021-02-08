@@ -26,6 +26,7 @@ public class MainActivity extends AppCompatActivity {
     public static final String SERVER_NAME = "pool.ntp.org";
     private static final String TAG = "";
     final SntpClient sntpClient = new SntpClient();
+    private long offset;
     //final NTPUDPClient client = new NTPUDPClient();
 
 
@@ -83,13 +84,22 @@ public class MainActivity extends AppCompatActivity {
                                             String atomicString = formatter.format(at);
                                             atomicTime.setText(atomicString);
 
-                                            System.out.println("Atomic Time: " + sntpClient.getNtpTime());
-                                            System.out.println("System Time: " + System.currentTimeMillis());
-                                            long offset = System.currentTimeMillis() - sntpClient.getNtpTime() ;
-                                            System.out.println("Offset: " + offset);
+                                            //System.out.println("Atomic Time: " + sntpClient.getNtpTime());
+                                            //System.out.println("System Time: " + System.currentTimeMillis());
+                                            if (System.currentTimeMillis() >= sntpClient.getNtpTime()) {
+                                                offset = System.currentTimeMillis() - sntpClient.getNtpTime() ;
+                                            } else {
+                                                offset = sntpClient.getNtpTime() - System.currentTimeMillis()  ;
+                                            }
+                                            //System.out.println("Offset: " + offset);
                                             SimpleDateFormat offsetFormat = new SimpleDateFormat("ss.S");
                                             String offsetString = offsetFormat.format(offset);
-                                            offsetView.setText(offsetString);
+                                            if (System.currentTimeMillis() >= sntpClient.getNtpTime()){
+                                                offsetView.setText("+" +offsetString);
+                                            } else {
+                                                offsetView.setText("-" +offsetString);
+                                            }
+
 
                                         }
                                     }
