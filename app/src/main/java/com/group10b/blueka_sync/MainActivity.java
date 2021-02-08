@@ -46,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
                                 systemTime.setText(systemString);
 
                                 /**
-                                 * Obtaining atomic time and displaying on screen
+                                 * Obtaining atomic time from internet via NTP and displaying on screen
                                  */
                                 /*TextView atomicTime = (TextView) findViewById(R.id.atomic);
                                 long at = 0;
