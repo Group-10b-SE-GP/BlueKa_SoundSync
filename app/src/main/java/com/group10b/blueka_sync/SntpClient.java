@@ -12,19 +12,13 @@ import java.util.TimeZone;
 
 /**
  * Simple SNTP client class for retrieving network time.
- *
- * Sample usage:
- * <pre>SntpClient client = new SntpClient();
- * if (client.requestTime("time.foo.com")) {
- *     long now = client.getNtpTime() + SystemClock.elapsedRealtime() - client.getNtpTimeReference();
- * }
- * </pre>
  */
+
 public class SntpClient {
 
     private static final String TAG = "SntpClient";
 
-    private static final int REFERENCE_TIME_OFFSET = 16;
+    //private static final int REFERENCE_TIME_OFFSET = 16;
     private static final int ORIGINATE_TIME_OFFSET = 24;
     private static final int RECEIVE_TIME_OFFSET = 32;
     private static final int TRANSMIT_TIME_OFFSET = 40;
