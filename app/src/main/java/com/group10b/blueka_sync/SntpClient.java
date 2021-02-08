@@ -189,28 +189,6 @@ public class SntpClient {
         buffer[offset++] = (byte)(Math.random() * 255.0);
     }
 
-    /**
-     * format time => human readable.
-     */
-    private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
-    public static String getFormattedDateTime(Date date) {
-        DateFormat df = new SimpleDateFormat(DATE_FORMAT);
-        return df.format(date);
-    }
-
-    public static String getFormattedCurrentDateTime() {
-        return getFormattedDateTime(new Date());
-    }
-
-    /**
-     * convert timezone to other
-     * @param unixTime unix time is a system for describing instants in time, defined as the number of seconds that have elapsed since 00:00:00 Coordinated Universal Time (UTC), Thursday, 1 January 1970
-     * @return
-     */
-    public static String timezoneConverter(long unixTime){
-        Date date = new Date(unixTime);
-        DateFormat formatter = new SimpleDateFormat("dd MMM yyyy HH:mm:ss z");
-        formatter.setTimeZone(TimeZone.getTimeZone("GMT+04:00"));
-        return  formatter.format(date);
-    }
 }
+
+

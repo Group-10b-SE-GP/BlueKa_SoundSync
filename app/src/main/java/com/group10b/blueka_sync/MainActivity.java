@@ -23,11 +23,8 @@ import org.apache.commons.net.ntp.TimeInfo;
 
 public class MainActivity extends AppCompatActivity {
 
-    public static final String SERVER_NAME = "pool.ntp.org";
-    private static final String TAG = "";
     final SntpClient sntpClient = new SntpClient();
     private long offset;
-    //final NTPUDPClient client = new NTPUDPClient();
 
 
 
@@ -60,15 +57,6 @@ public class MainActivity extends AppCompatActivity {
                                  * Obtaining atomic time from internet via NTP and displaying on screen
                                  */
 
-                               /*
-                                new GetNTPAsynctask().execute();
-                                if (client.requestTime("pool.ntp.org",10)){
-                                    long at = client.getNtpTime() + SystemClock.elapsedRealtime() - client.getNtpTimeReference();
-                                    SimpleDateFormat sdf2 = new SimpleDateFormat("HH:mm:ss.SS");
-                                    String atomicString = sdf2.format(at);
-                                    atomicTime.setText(atomicString);
-                                }*/
-
                                 TextView atomicTime = (TextView) findViewById(R.id.atomic);
                                 TextView offsetView = (TextView) findViewById(R.id.offsetId);
                                 new AsyncTask<Void,Integer,Boolean>(){
@@ -94,6 +82,7 @@ public class MainActivity extends AppCompatActivity {
                                             //System.out.println("Offset: " + offset);
                                             SimpleDateFormat offsetFormat = new SimpleDateFormat("ss.S");
                                             String offsetString = offsetFormat.format(offset);
+
                                             if (System.currentTimeMillis() >= sntpClient.getNtpTime()){
                                                 offsetView.setText("+" +offsetString);
                                             } else {
@@ -121,23 +110,6 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
-
-
-
-  /*public static long getCurrentNetworkTime() throws IOException {
-        NTPUDPClient timeClient = new NTPUDPClient();
-        InetAddress inetAddress = InetAddress.getByName(TIME_SERVER);
-        TimeInfo timeInfo = timeClient.getTime(inetAddress);
-        //long returnTime = timeInfo.getReturnTime();   //local device time
-        long returnTime = timeInfo.getMessage().getTransmitTimeStamp().getTime();   //server time
-
-        Date time = new Date(returnTime);
-        Log.d(TAG, "Time from " + TIME_SERVER + ": " + time);
-
-        return returnTime;
-    }*/
-
-
 
 }
 

@@ -32,7 +32,9 @@
         android:layout_marginTop="332dp"
         android:layout_marginEnd="309dp"
         android:layout_marginBottom="380dp"
-        android:text="System Time:" />
+        android:text="System Time:"
+        android:visibility="visible"
+        tools:visibility="visible" />
 
     <TextView
         android:id="@+id/textView2"
@@ -46,7 +48,9 @@
         android:layout_marginTop="126dp"
         android:layout_marginEnd="315dp"
         android:layout_marginBottom="586dp"
-        android:text="Atomic Time:" />
+        android:text="Atomic Time:"
+        android:visibility="visible"
+        tools:visibility="visible" />
 
     <TextView
         android:id="@+id/atomic"
@@ -67,7 +71,9 @@
         android:layout_alignParentBottom="true"
         android:layout_marginEnd="326dp"
         android:layout_marginBottom="180dp"
-        android:text="Offset:" />
+        android:text="Offset:"
+        android:visibility="visible"
+        tools:visibility="visible" />
 
     <TextView
         android:id="@+id/offsetId"
