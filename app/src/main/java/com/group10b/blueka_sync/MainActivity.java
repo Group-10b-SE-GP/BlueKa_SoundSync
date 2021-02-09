@@ -1,38 +1,29 @@
 package com.group10b.blueka_sync;
 
 import android.annotation.SuppressLint;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.os.AsyncTask;
-import android.os.SystemClock;
-import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.net.InetAddress;
-import java.util.Date;
-import java.util.TimeZone;
-
-import org.apache.commons.net.ntp.NTPUDPClient;
-import org.apache.commons.net.ntp.TimeInfo;
+import java.util.Calendar;
 
 public class MainActivity extends AppCompatActivity {
 
+    Button buttonSync;
     final SntpClient sntpClient = new SntpClient();
-    private long offset;
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        buttonSync = (Button) findViewById(R.id.sync_button);
+        final MediaPlayer mp = MediaPlayer.create(this, R.raw.merdeka);
 
         Thread t = new Thread() {
             @Override
@@ -44,58 +35,39 @@ public class MainActivity extends AppCompatActivity {
                             @SuppressLint("StaticFieldLeak")
                             @Override
                             public void run() {
+
                                 /**
                                  * Obtaining system time and displaying on screen
                                  */
-                               TextView systemTime = (TextView) findViewById(R.id.system);
+                                TextView systemTimeView = (TextView) findViewById(R.id.system);
                                 long st = System.currentTimeMillis();
-                                SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss.SS");
-                                String systemString = sdf.format(st);
-                                systemTime.setText(systemString);
+                                systemTimeView.setText(getFormattedTime(st));
 
                                 /**
                                  * Obtaining atomic time from internet via NTP and displaying on screen
+                                 * Calculating offset with sign
                                  */
 
-                                TextView atomicTime = (TextView) findViewById(R.id.atomic);
+                                TextView atomicTimeView = (TextView) findViewById(R.id.atomic);
                                 TextView offsetView = (TextView) findViewById(R.id.offsetId);
-                                new AsyncTask<Void,Integer,Boolean>(){
+
+                                new AsyncTask<Void, Integer, Boolean>() {
                                     @Override
                                     protected Boolean doInBackground(Void... params) {
-                                        return sntpClient.requestTime("pool.ntp.org",3000);
+                                        return sntpClient.requestTime("pool.ntp.org", 3000);
                                     }
+
                                     @Override
                                     protected void onPostExecute(Boolean result) {
-                                        if(result){
+                                        if (result) {
+
                                             long at = sntpClient.getNtpTime();
-                                            SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss.SS");
-                                            String atomicString = formatter.format(at);
-                                            atomicTime.setText(atomicString);
+                                            atomicTimeView.setText(getFormattedTime(at));
 
-                                            //System.out.println("Atomic Time: " + sntpClient.getNtpTime());
-                                            //System.out.println("System Time: " + System.currentTimeMillis());
-                                            if (System.currentTimeMillis() >= sntpClient.getNtpTime()) {
-                                                offset = System.currentTimeMillis() - sntpClient.getNtpTime() ;
-                                            } else {
-                                                offset = sntpClient.getNtpTime() - System.currentTimeMillis()  ;
-                                            }
-                                            //System.out.println("Offset: " + offset);
-                                            SimpleDateFormat offsetFormat = new SimpleDateFormat("ss.S");
-                                            String offsetString = offsetFormat.format(offset);
-
-                                            if (System.currentTimeMillis() >= sntpClient.getNtpTime()){
-                                                offsetView.setText("+" +offsetString);
-                                            } else {
-                                                offsetView.setText("-" +offsetString);
-                                            }
-
-
+                                            setOffsetView(System.currentTimeMillis(),sntpClient.getNtpTime(),offsetView);
                                         }
                                     }
                                 }.execute();
-
-
-
 
 
                             }
@@ -107,9 +79,79 @@ public class MainActivity extends AppCompatActivity {
         };
         t.start();
 
-
-
     }
+
+    public String getFormattedTime(long time){
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss.SS");
+        String formattedTime = sdf.format(time);
+        return formattedTime;
+    }
+
+    public boolean getOffsetSign(long systemTime, long atomicTime){
+        if (systemTime >= atomicTime){
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public long getOffsetValue(long systemTime, long atomicTime){
+        long offsetValue;
+        if (systemTime >= atomicTime){
+            offsetValue = systemTime - atomicTime;
+        } else {
+            offsetValue = atomicTime - systemTime;
+        }
+        //Obtain offset value in milliseconds
+        return offsetValue;
+    }
+
+    public void setOffsetView(long systemTime, long atomicTime, TextView view){
+        long value = getOffsetValue(systemTime,atomicTime);
+        SimpleDateFormat offsetFormat = new SimpleDateFormat("ss.S");
+        String offsetString = offsetFormat.format(value);
+        if (getOffsetSign(systemTime,atomicTime) == true){
+            view.setText("+" +offsetString);
+        } else {
+            view.setText("-"+offsetString);
+        }
+    }
+
+    /*public void setSystemTime(long atomicTime){
+        /*Calendar c = Calendar.getInstance();
+        c.setTimeInMillis(atomicTime);
+        AlarmManager am = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
+        am.setTime(c.getTimeInMillis());*/
+
+        //SystemClock.setCurrentTimeMillis(atomicTime);
+        /*if (ShellInterface.isSuAvailable()) {
+            ShellInterface.runCommand("chmod 666 /dev/alarm");
+            SystemClock.setCurrentTimeMillis(atomicTime);
+            ShellInterface.runCommand("chmod 664 /dev/alarm");
+        }
+
+        System.out.println("System Time: " + System.currentTimeMillis());
+        System.out.println("Atomic Time: " + atomicTime);
+
+    }*/
+
+    public long getCurrentInstance(){
+        long currentTime = Calendar.getInstance().getTimeInMillis();
+        return  currentTime;
+    }
+
+   /* buttonSync.setOnClickListener(new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            final AudioManager mAudioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
+            final int originalVolume = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+            mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC), 0);
+            mp.setAudioStreamType(AudioManager.STREAM_MUSIC);
+
+        }
+    });*/
+
+
 
 }
 
