@@ -1,6 +1,7 @@
 package com.group10b.blueka_sync;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.AsyncTask;
@@ -9,9 +10,11 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -26,7 +29,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         buttonSync = (Button) findViewById(R.id.sync_button);
-        final MediaPlayer mp = MediaPlayer.create(this, R.raw.merdeka);
 
         Thread t = new Thread() {
             @Override
@@ -62,14 +64,12 @@ public class MainActivity extends AppCompatActivity {
                                     @Override
                                     protected void onPostExecute(Boolean result) {
                                         if (result) {
-
                                             long at = sntpClient.getNtpTime();
                                             atomicTimeView.setText(getFormattedTime(at));
                                             setOffsetView(System.currentTimeMillis(),at,offsetView);
                                         }
                                     }
                                 }.execute();
-                                //getNtpServerTime(atomicTimeView,offsetView);
                             }
                         });
                     }
@@ -82,7 +82,8 @@ public class MainActivity extends AppCompatActivity {
         buttonSync.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //On button click we obtain the current system time
+                //Once number of connections is reached the following values
+                //shall be retrieved
                 currentSystemTime = System.currentTimeMillis();
                 currentNetworkTime = sntpClient.getNtpTime();
                 currentOffset = getOffsetValue(currentSystemTime,currentNetworkTime);
@@ -97,6 +98,35 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
+     * This method uses the timestamp and to calculate the sleep time.
+     * Sleep time is obtained by subtracting current system time from future timestamp.
+     * Once sleep time is over, the music shall be played.
+     * @param timestamp The time to play the music
+     * @throws InterruptedException
+     */
+    public void playMusic(long timestamp) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            TimeUnit.MILLISECONDS.sleep(timestamp-System.currentTimeMillis());
+                            startService(new Intent(MainActivity.this, SoundService.class));
+                            Toast.makeText(getApplicationContext(),"PLAYED",Toast.LENGTH_SHORT).show();
+
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                });
+            }
+        }).start();
+    }
+
+    /**
      * This method will return the time at which the snippet shall be played on the server phone
      * This is done by adding a value to the current system time.
      * The value added is a constant value of 5000 ms.
@@ -107,10 +137,10 @@ public class MainActivity extends AppCompatActivity {
         //This is the time at which the server phone will play music
         return (currentSystemTime + 5000);
     }
-
     public long getServerTimestamp(long currentSystemTime, long offsetValue){
         return getServerMusicTime(currentSystemTime) - offsetValue;
     }
+
 
 
     ///This method shall be called in client phone only
