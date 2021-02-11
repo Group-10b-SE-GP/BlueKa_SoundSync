@@ -17,6 +17,9 @@ public class MainActivity extends AppCompatActivity {
 
     Button buttonSync;
     final SntpClient sntpClient = new SntpClient();
+    long currentSystemTime;
+    long currentNetworkTime;
+    long currentOffset;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,7 +53,6 @@ public class MainActivity extends AppCompatActivity {
 
                                 TextView atomicTimeView = (TextView) findViewById(R.id.atomic);
                                 TextView offsetView = (TextView) findViewById(R.id.offsetId);
-
                                 new AsyncTask<Void, Integer, Boolean>() {
                                     @Override
                                     protected Boolean doInBackground(Void... params) {
@@ -63,13 +65,11 @@ public class MainActivity extends AppCompatActivity {
 
                                             long at = sntpClient.getNtpTime();
                                             atomicTimeView.setText(getFormattedTime(at));
-
-                                            setOffsetView(System.currentTimeMillis(),sntpClient.getNtpTime(),offsetView);
+                                            setOffsetView(System.currentTimeMillis(),at,offsetView);
                                         }
                                     }
                                 }.execute();
-
-
+                                //getNtpServerTime(atomicTimeView,offsetView);
                             }
                         });
                     }
@@ -79,6 +79,45 @@ public class MainActivity extends AppCompatActivity {
         };
         t.start();
 
+        buttonSync.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //On button click we obtain the current system time
+                currentSystemTime = System.currentTimeMillis();
+                currentNetworkTime = sntpClient.getNtpTime();
+                currentOffset = getOffsetValue(currentSystemTime,currentNetworkTime);
+
+                System.out.println("System time: "+currentSystemTime);
+                System.out.println("AtomicTime: "+currentNetworkTime);
+                System.out.println("Offset:"+currentOffset);
+
+            }
+        });
+
+    }
+
+    /**
+     * This method will return the time at which the snippet shall be played on the server phone
+     * This is done by adding a value to the current system time.
+     * The value added is a constant value of 5000 ms.
+     * @param currentSystemTime
+     * @return time to play music on server phone
+     */
+    public long getServerMusicTime(long currentSystemTime){
+        //This is the time at which the server phone will play music
+        return (currentSystemTime + 5000);
+    }
+
+    public long getServerTimestamp(long currentSystemTime, long offsetValue){
+        return getServerMusicTime(currentSystemTime) - offsetValue;
+    }
+
+
+    ///This method shall be called in client phone only
+    public long getClientMusicTime(long timestamp, long clientOffset){
+        //timestamp is the time received from the server
+        //It is used to calculate the time at which the client phone will play music
+        return timestamp + clientOffset;
     }
 
     public String getFormattedTime(long time){
@@ -116,42 +155,6 @@ public class MainActivity extends AppCompatActivity {
             view.setText("-"+offsetString);
         }
     }
-
-    /*public void setSystemTime(long atomicTime){
-        /*Calendar c = Calendar.getInstance();
-        c.setTimeInMillis(atomicTime);
-        AlarmManager am = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
-        am.setTime(c.getTimeInMillis());*/
-
-        //SystemClock.setCurrentTimeMillis(atomicTime);
-        /*if (ShellInterface.isSuAvailable()) {
-            ShellInterface.runCommand("chmod 666 /dev/alarm");
-            SystemClock.setCurrentTimeMillis(atomicTime);
-            ShellInterface.runCommand("chmod 664 /dev/alarm");
-        }
-
-        System.out.println("System Time: " + System.currentTimeMillis());
-        System.out.println("Atomic Time: " + atomicTime);
-
-    }*/
-
-    public long getCurrentInstance(){
-        long currentTime = Calendar.getInstance().getTimeInMillis();
-        return  currentTime;
-    }
-
-   /* buttonSync.setOnClickListener(new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            final AudioManager mAudioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
-            final int originalVolume = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
-            mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC), 0);
-            mp.setAudioStreamType(AudioManager.STREAM_MUSIC);
-
-        }
-    });*/
-
-
 
 }
 
